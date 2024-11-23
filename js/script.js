@@ -1,37 +1,42 @@
-const poems = [
-    "醉里挑灯看剑，梦回吹角连营。",
-    "东风夜放花千树，更吹落、星如雨。",
-    "青山遮不住，毕竟东流去。",
-    "少年不识愁滋味，爱上层楼。",
-    "莫等闲，白了少年头，空悲切。",
-    "我见青山多妩媚，料青山见我应如是。",
-    "昨夜西风凋碧树，独上高楼，望尽天涯路。",
-    "千古江山，英雄无觅孙仲谋处。",
-    "把吴钩看了，栏杆拍遍，无人会，登临意。",
-    "何处望神州？满眼风光北固楼。",
-    "想当年，金戈铁马，气吞万里如虎。",
-    "壮志饥餐胡虏肉，笑谈渴饮匈奴血。",
-    "可惜流年，忧愁风雨，树犹如此。",
-    "人生如梦，一樽还酹江月。",
-    "水龙吟，水调歌头，一夜潇湘雨。",
-    "长安回望绣成堆，山顶千门次第开。",
-    "凤凰台上凤凰游，凤去台空江自流。",
-    "江南好，风景旧曾谙。",
-    "天下英雄谁敌手？曹刘。生子当如孙仲谋。",
-    "乱石穿空，惊涛拍岸，卷起千堆雪。",
-];
+import poems from './poems.js';
 
 const poemCard = document.getElementById('poemCard');
 const poemText = document.getElementById('poemText');
 
+// 用于存储最近显示过的诗句
+const recentPoems = new Set();
+const MAX_RECENT_POEMS = 10; // 记录最近显示的10首诗
+
+// 改进的随机诗句选择函数
 function getRandomPoem() {
-    const currentPoem = poemText.textContent;
-    let newPoem;
-    do {
-        newPoem = poems[Math.floor(Math.random() * poems.length)];
-    } while (newPoem === currentPoem);
+    let availablePoems = poems.filter(poem => !recentPoems.has(poem));
+    
+    // 如果所有诗都在最近列表中，清空历史
+    if (availablePoems.length === 0) {
+        recentPoems.clear();
+        availablePoems = poems;
+    }
+    
+    // 随机选择一首可用的诗
+    const randomIndex = Math.floor(Math.random() * availablePoems.length);
+    const newPoem = availablePoems[randomIndex];
+    
+    // 添加到最近列表
+    recentPoems.add(newPoem);
+    
+    // 如果最近列表太长，删除最早的记录
+    if (recentPoems.size > MAX_RECENT_POEMS) {
+        const firstItem = recentPoems.values().next().value;
+        recentPoems.delete(firstItem);
+    }
+    
     return newPoem;
 }
+
+// 页面加载时显示随机诗句
+window.addEventListener('DOMContentLoaded', () => {
+    poemText.textContent = getRandomPoem();
+});
 
 function createFirework(x, y) {
     const firework = document.createElement('div');
